@@ -4,7 +4,7 @@ editor_options:
   markdown: 
     wrap: 72
 ---
-
+Bex Heimbrock praise God I have figured this out!
 ::: {style="text-align: center; color: #337DFF;"}
 # First Steps in R and R Studio
 

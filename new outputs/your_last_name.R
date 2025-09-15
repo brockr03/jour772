@@ -1,0 +1,1 @@
+Bex Heimbrock is joyed and relieved that they have one more day of classes until their weekend begins -- Bex is also joyed and relieved because they have no classes on Friday. 

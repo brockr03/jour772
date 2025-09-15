@@ -1,0 +1,5 @@
+"0","#1: Build a table for NewYorkTimes employees   "
+"0","NYT <- subset(MediaBucks, COMPANY==""NewYorkTimes"")  "
+"0","NYT %>% "
+"0","  count(Race) %>% "
+"0","  arrange(desc(n))"

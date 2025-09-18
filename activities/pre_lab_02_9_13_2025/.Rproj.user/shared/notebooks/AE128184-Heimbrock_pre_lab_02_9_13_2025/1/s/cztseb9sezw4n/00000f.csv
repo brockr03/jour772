@@ -1,0 +1,3 @@
+"0","journalism_courses <- umd_courses |> filter(department == ""Journalism"")"
+"0",""
+"0","head(journalism_courses)"

@@ -1,0 +1,5 @@
+"0","general_22 <- general_22 |>"
+"0","  mutate("
+"0","    total_votes = cox + moore + lashar + wallace + write_ins,"
+"0","    pct_moore = moore/total_votes"
+"0","  )"

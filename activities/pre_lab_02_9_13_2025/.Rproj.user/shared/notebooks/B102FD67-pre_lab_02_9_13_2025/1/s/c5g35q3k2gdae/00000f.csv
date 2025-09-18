@@ -1,0 +1,4 @@
+"0","maryland_expenses_with_state |>"
+"0","  group_by(state) |>"
+"0","  summarize(total = sum(amount)) |>"
+"0","  arrange(desc(total))"

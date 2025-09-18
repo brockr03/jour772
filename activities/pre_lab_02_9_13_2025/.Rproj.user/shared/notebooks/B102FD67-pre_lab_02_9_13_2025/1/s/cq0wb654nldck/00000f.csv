@@ -1,0 +1,4 @@
+"0","standardized_maryland_expenses <- maryland_expenses |>"
+"0","  mutate("
+"0","    payee_upper = str_to_upper(payee_name)"
+"0",")"

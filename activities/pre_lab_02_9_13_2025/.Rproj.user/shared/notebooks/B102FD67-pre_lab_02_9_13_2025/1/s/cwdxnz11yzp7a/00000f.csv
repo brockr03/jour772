@@ -1,0 +1,7 @@
+"0","and_theatre_seats_15 <- umd_courses |> filter(department == ""Theatre"" | seats >= 15)"
+"0",""
+"0","nrow(and_theatre_seats_15)"
+"1","[1]"
+"1"," 54000"
+"1","
+"

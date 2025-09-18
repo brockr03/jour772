@@ -1,0 +1,3 @@
+"0","courses_2025 <- umd_courses |> filter(term > 202500)"
+"0",""
+"0","head(courses_2025)"

@@ -1,0 +1,2 @@
+"0","umd_courses |>"
+"0","  filter(str_detect(title, ""Shakespeare""))"

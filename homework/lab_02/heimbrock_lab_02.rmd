@@ -1,0 +1,121 @@
+---
+title: "lab_02"
+author: "Bex Heimbrock"
+date: "2025-09-22"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load libraries and establish settings
+
+```{r}
+# Turn off scientific notation
+options(scipen=999)
+
+# Load the tidyverse. If you have not installed the tidyverse already, remove the # from the next line and run it first.  
+# install.packages('tidyverse')
+library(tidyverse)
+library(lubridate)
+```
+
+## Load Data
+
+Let's keep working with the UMD courses and Maryland campaign expense data we used in the pre_lab.
+
+```{r}
+umd_courses <- read_rds("data/umd_courses.rds")
+maryland_expenses <- read_csv("data/maryland_expenses.csv")
+```
+
+## Answer questions
+
+**Q1.** How many departments have offered the courses with "Climate" in the title and at least one seat? Which department has offered the most? **A1.** Atmospheric and Ocean Sciences department offered the most courses with Climate in the title. 
+
+```{r}
+climate_courses <- umd_courses %>%
+  filter(str_detect(title, "Climate") & seats >= 1) %>% 
+  group_by(department) %>% 
+  summarise(classes = n()) %>% 
+  arrange(desc(classes))
+```
+
+**Q2.** Of the departments listed in A1, which one is the most interesting to you, and why? **A2.** I would love to know what courses Art History and Archaeology teach that concern climate. Maybe classes about how to properly store artifacts? Or how to analyze climate trends from art? That seems the most interesting to me!
+
+**Q3** Which departments offered the most courses in the Fall 2024 term? And which departments in that term have at least one syllabus posted? Answer both of those questions and then compare the top five departments - how are they different?
+
+**A3.** Business and management offered the most courses in the Fall 2024 term. There are 416 departments in that term that have at least one syllabus posted.
+
+```{r}
+departments_and_courses_2024 <- umd_courses |> filter(term > 202408)
+
+head(departments_and_courses_2024)
+```
+```{r}
+departments_and_courses_2024 %>%
+  group_by(department) %>% 
+  summarise(classes = n()) %>% 
+  arrange(desc(classes))
+```
+```{r}
+departments_and_courses_2024 %>%
+  group_by(department, syllabus_count) %>% 
+  filter(syllabus_count>=1) %>% 
+  summarise(syllabus_count = n()) %>% 
+  arrange(desc(syllabus_count))
+```
+**Q4.** Using the Maryland campaign expenses data, change the datatype of the expenditure_date column so that it is a date and not a chr, saving the result as a new dataframe. Then create a new column for the month based on expenditure_date. Then write code that shows total amount spent each month by Wes Moore's committee (you'll need to search the data to find the exact name, and we're not looking in payee_name). Write a sentence describing the pattern of spending over time. **A4.** I can't figure out what the pattern of spending is over time.
+
+```{r}
+maryland_expenses <- maryland_expenses |> mutate(expenditure_date=mdy(expenditure_date))
+
+head(maryland_expenses)
+```
+```{r}
+maryland_expenses |>
+  mutate(month = floor_date(expenditure_date, "month")) |>
+  group_by(month) |>
+  summarise(total_amount = sum(amount)) |>
+  arrange(desc(total_amount))
+```
+```{r}
+maryland_expenses %>%
+  mutate(
+    expenditure_date = mdy(expenditure_date),
+    expenditure_month = floor_date(expenditure_date, "month")
+  ) %>%
+  filter(committee_name == "Moore  Wes For Maryland") %>%
+group_by(expenditure_month) %>%
+  summarise(total_spent = sum(amount, na.rm = TRUE)) %>%
+  arrange(desc(total_spent))
+#This is as far as I can get, honestly don't know what I'm doing wrong.
+```
+**Q5.** Using case_when(), create a column in the Maryland expenses data called `spending_location` indicating whether each record spent money in Maryland or outside Maryland. For records that are in Maryland, make the new column's value "In-state" and for all others, make it "Out of state". Then write code that shows the total amount of money spent in each category and describe the results. You can do this in one statement or break it up into two statements (saving the new column to your dataframe). **A5** The total amount spent is 77723146.
+
+```{r}
+spending_location <- maryland_expenses |>
+  mutate(
+    state = case_when(
+        str_detect(address, " Maryland ") ~ "MD",
+        .default = NA
+      )
+  )
+spending_location|>
+  group_by(state) |>
+  summarize(total = sum(amount)) |>
+  arrange(desc(total))
+```
+
+**Q6.** Choose your own adventure: using either the UMD courses or campaign expenses data, ask and answer a question that is different than the previous ones. You can use one of the ones you provided in the pre_lab. **A6.** My question -- Can we standardize the UMD course data to combine courses listed multiple times but with different names? My answer is ... I don't know. I thought I was using a string to filter cross-listed courses and combine them. It did not work.
+
+```{r}
+better_courses <- umd_courses |>
+  mutate(
+    title = case_when(
+        str_detect(title, " Climate Cultures ") ~ "ANTHCLIMATE",
+        .default = NA
+      )
+  )
+```

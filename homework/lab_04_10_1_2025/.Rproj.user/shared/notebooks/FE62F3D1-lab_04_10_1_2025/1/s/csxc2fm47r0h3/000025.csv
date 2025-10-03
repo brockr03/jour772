@@ -1,0 +1,4 @@
+"0",""
+"0","cleaned_media_category <- md_expenses |>"
+"0","mutate(payee_clean=n_gram_merge(payee_name)) |>"
+"0","select(payee_name, payee_clean, everything ())"

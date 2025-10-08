@@ -68,7 +68,12 @@ cleaned_media_category <- md_expenses |>
 mutate(payee_clean=n_gram_merge(payee_name)) |>
 select(payee_name, payee_clean, everything ())
 ```
-
+```{r} 
+media_category <- md_expenses |> 
+  filter(expense_category == "Media") |> 
+mutate(payee_clean=n_gram_merge(payee_name)) |>
+select(payee_name, payee_clean, everything ())
+```
 
 **Q2** More cleaning of Facebook. Look carefully at variations of Facebook, bearing in mind that it changed its name in 2021: <https://about.fb.com/news/2021/10/facebook-company-is-now-meta/>).
 

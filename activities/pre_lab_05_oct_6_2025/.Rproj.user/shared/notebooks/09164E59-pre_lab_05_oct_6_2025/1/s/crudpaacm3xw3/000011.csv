@@ -1,0 +1,2 @@
+"0","voters_by_county <- read_csv(""tabula-Eligible Active Voters by County - GG22.csv"")"
+"0","View(voters_by_county)"

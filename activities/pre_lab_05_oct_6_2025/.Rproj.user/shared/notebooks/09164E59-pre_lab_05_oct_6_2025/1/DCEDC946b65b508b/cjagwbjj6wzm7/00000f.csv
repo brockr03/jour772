@@ -1,0 +1,6 @@
+"0","fentanyl_deaths <- read_csv(""drug-deaths.csv"", col_names = FALSE) |> "
+"0","  clean_names() |> "
+"0","  rename(jurisdiction = x1, deaths_2011 = x2, deaths_2012 = x3, deaths_2013 = x4, deaths_2014 = x5, deaths_2015 = x6, deaths_2016 = x7, deaths_2017 = x8, "
+"0","         deaths_2018 = x9, deaths_2019 = x10, deaths_2020 = x11, deaths_total = x12)"
+"0",""
+"0","fentanyl_deaths"

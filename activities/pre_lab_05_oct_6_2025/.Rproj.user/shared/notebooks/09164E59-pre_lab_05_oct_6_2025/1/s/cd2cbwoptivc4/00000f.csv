@@ -1,0 +1,3 @@
+"0","fentanyl_deaths <- read_csv(""tabula-Annual_2020_Drug_Intox_Report.csv"") |> clean_names()"
+"2","Error: 'tabula-Annual_2020_Drug_Intox_Report.csv' does not exist in current working directory ('/Users/rebeccaheimbrock/Desktop/jour772/activities/pre_lab_05_oct_6_2025').
+"

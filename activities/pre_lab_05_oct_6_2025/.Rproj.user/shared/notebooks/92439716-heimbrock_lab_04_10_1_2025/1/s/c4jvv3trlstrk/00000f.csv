@@ -1,0 +1,4 @@
+"0","#maryland expenses csv file "
+"0","md_expenses <- read_csv(""data/maryland_expenses.csv"") |> "
+"0","clean_names()"
+"0",""

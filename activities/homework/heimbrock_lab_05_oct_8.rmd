@@ -1,7 +1,7 @@
 ---
 title: "lab_05"
-author: "Derek Willis"
-date: "2025-01-16"
+author: "Bex Heimbrock"
+date: "2025-09-10"
 output: html_document
 ---
 

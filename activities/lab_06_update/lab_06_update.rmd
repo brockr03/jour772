@@ -1,7 +1,7 @@
 ---
 title: "lab_06_update"
 author: "Bex Heimbrock"
-date: "2025-10-15"
+date: "2025-10-22"
 output: html_document
 ---
 
@@ -222,8 +222,16 @@ Next, join demographic data with Baltimore City 911 calls.
 Remember, the zip codes in both dataframes must be the same datatype (and should be characters). You should start with your Baltimore City 911 dataframe in creating your join.
 
 ```{r}
-# load and join the Baltimore-related data
+baltimore_911 <- read_csv("/Users/rebeccaheimbrock/Desktop/jour772/activities/lab_06_update/data/baltimore_911.csv") %>% 
+  clean_names() %>% 
+  mutate(across(zip_code, as.character))
 ```
+```{r}
+#Raphael helped me with this code
+baltimore_911_with_demographics <- baltimore_911 %>% 
+  left_join(maryland_zcta, join_by(zip_code == ZCTA5N))
+```
+
 
 ## Answer questions
 
@@ -240,9 +248,9 @@ total_call_no <- combined_911 |>
   )
 ```
 Q1b: Write the answer: What's the order of counties from most calls to least?
-Carroll, Cecil, Allegany
 
-**Write the answer:**
+
+**Write the answer:**Carroll, Cecil, Allegany
 
 
 
@@ -262,7 +270,7 @@ combined_911 |>
 
 Q2a: Are there any outliers or noteworthy results? Describe the general pattern of the results.
 
-**Write answer here:**
+**Write answer here:** Cecil county had the most calls in August, and it seems like May was a high call-volume month for at least three counties. It's interesting that Alleghaney had 17 calls in November, as I was under the impression that holiday months were typically worse for ODs.
 
 Q2b: Use "combined_911" data and write code to calculate the most calls per county and location. 
 
@@ -274,7 +282,7 @@ total_info <- combined_911 |>
 
 Q2c: Which location had the most calls - where and what is that location?
 
-**Write answer here:**
+**Write answer here:** Carroll had the most amount of calls, their total call number is 448
 
 
 
@@ -285,23 +293,29 @@ Write code to filter for calls in zip codes where the percentage of under 18 pop
 Next, show the zip code and population and how many calls occurred in each of those zip codes.
 
 ```{r}
-
-
-
+#Note that Raphael helped me with this code.
+baltimore_911_with_demographics %>%
+  filter(!is.na(PLT18SP) & PLT18SP >= 75) %>%
+  count(zip_code, POP100, name = "calls") %>%
+  arrange(desc(calls))
 ```
 
 
 Q3a: Where are those zip codes in the city?
 
-**Write the answer here:**
+**Write the answer here:** The zip codes are overwhelmingly on the northern, western and northwestern side of Baltimore. The median individual income (according to census data) in zip 21217, where a notably large amount of calls are recorded, is just below $30,000. This area is also known as Upton. According to Wikipedia, Upton was one of the most affluent Black neighborhoods in the United States. Wikipedia speculates that more affluent Black families eventually left for the suburbs, contributing to the ultimnte decline of the area.
 
 Q4: Continuing with the baltimore_911_with_demographics data. Take the table you just created in Q3 and modify it.
 
 Add a column that calculates the number of calls per 1,000 people for those zip codes. To calculate a per capita rate, you might find this short guide handy: [https://observablehq.com/\@palewire/per-capita-calculator](https://observablehq.com/@palewire/per-capita-calculator){.uri}.
 
 ```{r}
-
-
+#Note that Raphael helped me with this code
+baltimore_911_with_demographics %>%
+  filter(!is.na(PLT18SP) & PLT18SP >= 75) %>%
+  count(zip_code, POP100, name = "calls") %>%
+  mutate(calls_per_1000 = calls / POP100 * 1000) %>%
+  arrange(desc(calls_per_1000))
 ```
 
 
@@ -309,4 +323,4 @@ Q4a: Which zip code has the highest rate of calls per 1,000 people? Find the nei
 
 Do an internet search: What are some of those neighborhoods, and what else can you tell me about the population there?
 
-**Write the answer here:**
+**Write the answer here:** The zip code with the highest rate of calls per 1,000 people is 21217. As I noted above, this is an interesting area for a number of reasons. As a location that was once the site of prosperity for Black families, it has seemingly declined due to both flight to the suburbs and red lining policies that push out and impoverish Black people. This, for me, was very emblematic of Christina Sharpe's notion of 'the wake' of chattel slavery. The zip code with the second highest number of calls is home to Poe Baltimore, the site of the Edgar Allen Poe house and museum. 

@@ -94,7 +94,7 @@ You'll need your Census API Key:
 **Task** set your API Key if you haven't already. You won't need to install or overwrite it.
 
 ```{r echo=FALSE}
-census_api_key("CENSUS_API_KEY")
+census_api_key("40c2313fc1a231b500335ab147c5d6764b80fdd4")
 ```
 
 ## Load and view ACS variables
@@ -142,27 +142,64 @@ total_call_no_by_zip <- overdose_calls |>
   )
 ```
 
-3.  Find the ACS variable pertaining to the total 18 and up population (there are several choices here; you want the simplest one). Then get from the ACS data from all Maryland zip codes using that variable - you will need to specify an earlier year to get the data.
+3.  Find the ACS variable pertaining to the total 18 and up population (there are several choices here; you want the simplest one). Then get from the ACS data from all Maryland zip codes using that variable - you will need to specify an earlier year to get the data. B09021_001
 ```{r}
-
+eighteen_and_up <- get_acs(geography = 'county',
+              variables = c(total_18_and_up = 'B09021_001'),
+              state = 'MD',
+             )
+```
+```{r}
+md_zipcodes <- get_acs(geography="zcta", variables = "B09021_001", state='MD', year=2019)
 ```
 
+
 4.  Join the ACS data to the Montgomery County zip code totals dataframe and rename the estimate column to a meaningful name you've given the ACS variable.
+```{r}
+#I kept running into an error below that said 'population 2019 not found' - I asked Claude how to edit my existing code to grab population per year and make it a new table. The below code is modified per Claude's response.
+# Get data for each year
+pop_2015 <- get_acs(geography="zcta", variables = "B09021_001", state='MD', year=2015) |>
+  select(GEOID, Population2015 = estimate)
+
+pop_2016 <- get_acs(geography="zcta", variables = "B09021_001", state='MD', year=2016) |>
+  select(GEOID, Population2016 = estimate)
+
+pop_2017 <- get_acs(geography="zcta", variables = "B09021_001", state='MD', year=2017) |>
+  select(GEOID, Population2017 = estimate)
+
+pop_2018 <- get_acs(geography="zcta", variables = "B09021_001", state='MD', year=2018) |>
+  select(GEOID, Population2018 = estimate)
+
+pop_2019 <- get_acs(geography="zcta", variables = "B09021_001", state='MD', year=2019) |>
+  select(GEOID, Population2019 = estimate)
+
+# Join them all together
+ods_age_and_zip <- md_zipcodes |>
+  left_join(pop_2015, by='GEOID') |>
+  left_join(pop_2016, by='GEOID') |>
+  left_join(pop_2017, by='GEOID') |>
+  left_join(pop_2018, by='GEOID') |>
+  left_join(pop_2019, by='GEOID')
+```
+
 ```{r}
 
 ```
 
 5.  Add a column to the joined dataframe that calculates a rate of calls per 1,000 population.
 ```{r}
-
+ods_age_and_zip |> 
+  mutate(change = ((Population2019 - Population2015) / Population2015) * 100) |> 
+  arrange(desc(change))
 ```
 
 
 Which zip code has the highest rate of calls? Which has the lowest?
 
-**A3**
+**A3** The zip with the highest rate of calls is Massey, Maryland. Massey has 
 
 ```{r}
+
 ```
 
 **Q4** Using [CensusReporter.org](https://censusreporter.org/), examine the zip codes with the highest and lowest rates and compare and contrast their demographic profiles. Is there a story here?

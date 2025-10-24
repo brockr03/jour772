@@ -1,6 +1,6 @@
 ---
 title: "lab_07"
-author: "Derek Willis/Rob Wells"
+author: "Bex Heimbrock"
 date: "2025-10-21"
 output: html_document
 ---
@@ -130,12 +130,15 @@ md |>
 
 1.  Load the Montgomery County 911 overdose calls data.
 ```{r}
-overdose_calls <- read_csv("/Users/rebeccaheimbrock/Desktop/jour772/lab_07/data/montgomery_2022_overdoses.csv")
+overdose_calls <- read_csv("data/montgomery_2022_overdoses.csv")
 ```
 
 2.  Create a new dataframe with the total number of calls for each zip code.
 ```{r}
 total_call_no_by_zip <- overdose_calls |> 
+  mutate(
+    zip_code = as.character(zip)
+  ) |> 
   group_by(zip) |> 
   summarise(
     total_calls=n()
@@ -179,32 +182,28 @@ ods_age_and_zip <- md_zipcodes |>
   left_join(pop_2016, by='GEOID') |>
   left_join(pop_2017, by='GEOID') |>
   left_join(pop_2018, by='GEOID') |>
-  left_join(pop_2019, by='GEOID')
-```
-
-```{r}
+  left_join(pop_2019, by='GEOID') |>
+  left_join(total_call_no_by_zip |> mutate(zip = as.character(zip)), by=c('GEOID'='zip'))
 
 ```
+
 
 5.  Add a column to the joined dataframe that calculates a rate of calls per 1,000 population.
 ```{r}
 ods_age_and_zip |> 
-  mutate(change = ((Population2019 - Population2015) / Population2015) * 100) |> 
-  arrange(desc(change))
+  mutate(rate_per_1000 = (total_calls / Population2019) * 1000) |> 
+  arrange(desc(rate_per_1000))
 ```
 
 
 Which zip code has the highest rate of calls? Which has the lowest?
 
-**A3** The zip with the highest rate of calls is Massey, Maryland. Massey has 
+**A3** 20877 is the zip code with the highest rate of calls. Gaithersburg, MD is home to that zip code, per United States Zip Codes. The median individual income in Gaithersburg is roughly 51,000, which is higher than the cities in Baltimore where high call numbers were. The zip with the lowest rate of calls is 20707 -- corresponding to Laurel, MD. Laurel has a median household income of about 94,063. 
 
-```{r}
-
-```
 
 **Q4** Using [CensusReporter.org](https://censusreporter.org/), examine the zip codes with the highest and lowest rates and compare and contrast their demographic profiles. Is there a story here?
 
 **A4**
 
 **Write your answer here:**
-
+The median age of Gaithersburg, MD is 36.8, with a slight majority female population. The overall population is 69,572. 46% of the Gaithersburg population is 'foreign-born' - with the majority 'foreign' population hailing from Europe. Gaithersburg is majority White (31%). The median age of Laurel, MD is 36.6, the overall population is 29,594. Laurel has a 54% female population, and it is 49% Black. I have always considered Gaithersburg a more rural area, so I think there's a story in the opioid problem within rural communities as such. I would also be interested in writing about whether there's a connection between poverty/immigration/opioids, since Gaithersburg has a notably large immigrant population. With Laurel, I think there's a good story in how such a diverse community is combatting the opioid epidemic with apparent efficacy. 

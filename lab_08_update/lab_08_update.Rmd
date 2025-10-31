@@ -20,8 +20,8 @@ knitr::opts_chunk$set(echo = TRUE)
 #load libraries
 library(tidyverse)
 library(lubridate)
-install.packages('ggthemes')
-library(ggthemes)
+library(janitor)
+library(tidycensus)
 ```
 
 
@@ -35,17 +35,12 @@ You will need to create columns for the date, week and month based on the existi
 
 ```{r}
 pgco_od_calls <- read_csv("data/prince_georges_2022_overdoses.csv")|> 
-mutate(call_date=as.Date(datetime)) 
-```
-```{r}
-pgco_sorted <- pgco_od_calls |>
+  clean_names()|> 
   mutate(
-    month= month(datetime, label=TRUE), 
-    week= week(datetime),
-    date= date(datetime)) |> 
-  group_by(month) |> 
-  summarize(total_calls = n()) |> 
-  arrange(desc(total_calls)) 
+    call_date=as.Date(datetime),
+    call_date_week= floor_date(call_date, "week"),
+    call_date_month= floor_date(call_date, "month")
+  )
 ```
 
 
@@ -60,12 +55,30 @@ pgco_sorted <- pgco_od_calls |>
 
 
 **A1.**
+```{r}
+install.packages('ggthemes')
+library(ggthemes)
+```
 
 ```{r}
+pgco_sorted <- pgco_od_calls |>
+  group_by(call_date_month) |> 
+  summarize(total_calls = n()) |>
+  mutate(percentage=total_calls/sum(total_calls)*100) 
+
+  ggplot(pgco_sorted, aes(x=call_date_month, y=percentage)) +
+    geom_bar(stat="identity")+
+  theme_economist() +
+    labs(
+    title="Overdose Calls on The Rise",
+    x = "month",
+    y = "total calls",
+    caption = "source: PG County. Graphic by Bex Heimbrock. 10-27-2025"
+  )
 ```
 
 
-**A1-written answer: Which month saw the greatest percentage of total calls? Write that here:**
+**A1-written answer: Which month saw the greatest percentage of total calls? Write that here:** December saw the most total calls, at 10%.
 
 **Q2.** Let's visualize this data on a weekly basis using a line chart. As in Q1, generate a dataframe with the total number of calls for each week, and then create a line chart to show the distribution of calls over time. Your line chart must have:
 
@@ -78,10 +91,30 @@ pgco_sorted <- pgco_od_calls |>
 **A2.**
 
 ```{r}
+pgco_weekly_calls <- pgco_od_calls |>
+  group_by(call_date_week) |>
+  summarise(total_calls = n())
+```
+```{r}
+pgco_weekly_calls |>
+  ggplot() + 
+  geom_line(aes(x=call_date_week, y=total_calls)) +
+  labs(
+    title="911 Calls Decreasing this January",
+    x = "week",
+    y = "total calls",
+    caption = "source: Prince George's County EMS. Graphic by Bex Heimbrock. 10-30-2025"
+    
+  ) +
+  scale_x_date(date_breaks = "1 week", date_labels = "%b %d") +
+    theme(
+    axis.text.x = element_text(angle = 90,  hjust=1)
+  )
 ```
 
 
-**A2--written answer:Describe the pattern of results; you may want to look at the data to dig into particular outliers.Write that here:**
+
+**A2--written answer:Describe the pattern of results; you may want to look at the data to dig into particular outliers.Write that here:** The over-all pattern is a peak towards the start of each month, or roughly every 3-ish weeks. I'm curious about why there was such a high peak the week of July 04 and why the week of Dec 20 at the start of the chart is at 0. 
 
 
 **Q3.** A scatterplot is a type of chart that helps us see relationships between two variables. One variable goes on the x axis, the other on the y axis. For each row/observation in our data, a scatterplot puts a circle (or a "point") where the two variables intersect on a grid.
@@ -100,23 +133,46 @@ To answer this question, do the following:
 
 **Q3 - 1.**  Generate a dataframe with the number of 911 calls for each zip code.
 ```{r}
-
+zip_calls <- pgco_od_calls %>%
+  group_by(zipcode) %>%
+  summarise(total_calls = n()) %>%
+  ungroup()
 ```
 
+
 **Q3 -2.**  Get data from the Census Bureau showing median household income for Maryland zip codes.
+
 ```{r}
+med_income <- get_acs(
+  geography = "zcta",
+  variables = "B19013_001", # Median household income
+  year = 2022,
+  survey = "acs5",
+  geometry = FALSE
+) %>%
+  select(zipcode = GEOID, median_income = estimate)
+
+md_zctas <- read_csv("data/maryland_zcta.csv") %>%
+  mutate(
+    ZCTA5CE10 = as.character(ZCTA5CE10)
+  )
 
 ```
 
 **Q3 -3.**  Join those two dataframes on their zip code columns, starting with the 911 calls dataframe.
 ```{r}
-
+income_and_zips <- med_income %>%
+  inner_join(md_zctas, by = c("zipcode" = "ZCTA5CE10")) %>%
+  select(zipcode, median_income)
 ```
 
 **Q3 -4.**  Make a scatterplot showing the total calls and median income. I didn't show you how to do this, so look it up! Googling "ggplot scatterplot" is a good start. Give it an appropriate title, source, and x and y axis titles. 
 ```{r}
-
-
+#Used Claude to edit this code. 
+library(ggplot2)
+income_and_zips %>%
+  ggplot(aes(x = zipcode, y = median_income)) +
+  geom_point(size = 2, shape = 23)
 ```
 
 **Bonus question:** Take the scatterplot above and add a label for each point that shows the zip code using geom_text() - see some examples of its use at <https://ggplot2.tidyverse.org/reference/geom_text.html#ref-examples>. Try to make the names as easy to read as possible by avoiding overlap.
@@ -129,5 +185,4 @@ To answer this question, do the following:
 
 **Q4**.  In the answer space below, describe what you see and answer the questions posed above. In a general sense, what do you think this means? Feel free to consider the actual raw values: how would you report out the main point(s) of this chart?
 
-**A4: Write your answer below.**
-
+**A4: Write your answer below.** I think the data shows that income and ODs are related. I think we could take this further and compare zip code, income and OD calls. From previous labs, we've seen that impoverished areas like the center of Baltimore see the vast majority of OD calls. These charts would go well alongside an article about the ongoing impact of redlining -- especially because we can see pretty clearly via the scatterplot that there are groupings of certain incomes in certain zip codes. Maybe even comparing current data to older, failed attempts at social mobility for Black and low income families such as 'Black Wallstreet' etc?

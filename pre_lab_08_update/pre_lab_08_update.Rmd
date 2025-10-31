@@ -38,6 +38,7 @@ The dataset we'll use is 911 overdose calls from Baltimore County in 2022. Let's
 
 ```{r}
 baltco_911_calls <- read_csv("data/baltco_911_calls.csv")
+
 ```
 
 ## Bar charts

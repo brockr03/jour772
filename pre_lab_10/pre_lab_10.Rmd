@@ -365,7 +365,7 @@ So let's change the color scale to a "log" scale, which will help us see those d
 
 ### Task: Run code
 
-**Task** Run the following code. Describe the output in the space below. What regional patterns do you see? **Answer** It seems like Garrett County is an outlier, in the sense that the two counties next to it have high foreclosure rates, but Garrett has extremely low rates. Most of MD falls into a purple/orange category, so they have somewhat high foreclosure rates but nothing crazy. There is only one county with a very high foreclosure rate -- Charles County.
+**Task** Run the following code. Describe the output in the space below. What regional patterns do you see? **Answer** It seems like Garrett County is an outlier, in the sense that the two counties next to it have high foreclosure rates, but Garrett has extremely low rates. Most of MD falls into a purple/orange category, so they have somewhat high foreclosure rates but nothing crazy. There is only one county with a very high foreclosure rate -- Charles County. 
 
 ```{r}
 ggplot() +
